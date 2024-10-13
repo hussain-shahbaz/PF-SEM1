@@ -1,11 +1,34 @@
 #include <iostream>
 #include <windows.h>
 using namespace std;
+char getCharAtxy(short int x, short int y)
+{
+    CHAR_INFO ci;
+    COORD xy = {0, 0};
+    SMALL_RECT rect = {x, y, x, y};
+    COORD coordBufSize;
+    coordBufSize.X = 1;
+    coordBufSize.Y = 1;
+    return ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, coordBufSize, xy, &rect) ? ci.Char.AsciiChar : ' ';
+}
+void gotoxy(int x, int y)
+{
+    COORD coordinates;
+    coordinates.X = x;
+    coordinates.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coordinates);
+}
+int bX = 70, bY = 10;
+int eX = 5, eY = 1;
+int sY, sX;
+int e2X = 95, e2Y = 26;
+int e3X = 8, e3Y = 7;
+char direction = 'R';
+char direction2 = 'U';
+string direction3 = "RD";
+int pX = 15, pY = 20;
 int enemyHealth = 100;
-char direction='R';
-int eX = 5, eY = 0;
-int pX = 1, pY = 28;
-// Maze Functions
+int gameScore = 0;
 void singleline()
 {
     cout << "#####################################################################################################################" << endl;
@@ -17,32 +40,64 @@ void borders()
 void maze()
 {
     singleline();
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 32; i++)
     {
         borders();
     }
     singleline();
 }
-//GOTOXY functino
-char getCharAtxy(short int x, short int y)
+void printSmallStar()
 {
-    CHAR_INFO ci;
-    COORD xy = {0, 0};
-    SMALL_RECT rect = {x, y, x, y};
-    COORD coordBufSize;
-    coordBufSize.X = 1;
-    coordBufSize.Y = 1;
-    return ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, coordBufSize, xy, &rect) ? ci.Char.AsciiChar: ' ';
+    cout << "*-*";
 }
-void gotoxy(int x, int y)
+void eraseSmallStar()
 {
-    COORD coordinates;
-    coordinates.X = x;
-    coordinates.Y = y;
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coordinates);
+    cout << "   ";
 }
-//Enemy Functions
-
+void printBigStar()
+{
+    cout << "{)0(}";
+}
+void eraseBigStar()
+{
+    cout << "     ";
+}
+void backGround()
+{
+    eraseBigStar();
+    eraseSmallStar();
+    int x = rand() % 6;
+    if (x == 0)
+    {
+        sX = 7;
+        sY++;
+    }
+    gotoxy(sX, sY);
+    printBigStar();
+    gotoxy(sX + 15, sY);
+    printSmallStar();
+}
+void bonusPill()
+{
+    gotoxy(bX, bY);
+    cout << ">0<";
+}
+void eraseBonusPill()
+{
+    gotoxy(bX, bY);
+    cout << "   ";
+}
+void getBonus()
+{
+    if (pY - 1 == bY && (pX + 5 == bX))
+    {
+        gameScore += 10;
+        eraseBonusPill();
+        bX = rand() % 50;
+        bY = rand() % 23;
+        bonusPill();
+    }
+}
 void printEnemy()
 {
     gotoxy(eX, eY);
@@ -69,49 +124,117 @@ void eraseEnemy()
     gotoxy(eX, eY + 4);
     cout << "           ";
 }
-void moveEnemyToTheLeft()
+void Direction()
 {
-    eraseEnemy();
-    Sleep(10);
-    eX--;
-
+    if (eX == 105)
+    {
+        direction = 'L';
+    }
     if (eX == 5)
     {
-        direction == 'R';
-        return;
+        direction = 'R';
     }
-    printEnemy();
 }
-void moveEnemyToTheRight()
+void movemenentEnemy()
 {
     eraseEnemy();
+    if (direction == 'R')
+        eX++;
+    if (direction == 'L')
+        eX--;
+    printEnemy();
     Sleep(10);
-    eX += 1;
-    if (eX == 90)
+}
+void printEnemy2()
+{
+    gotoxy(e2X, e2Y);
+    cout << "    /\\\\   //\\ " << endl;
+    gotoxy(e2X, e2Y + 1);
+    cout << "    \\  \\ /  /  " << endl;
+    gotoxy(e2X, e2Y + 2);
+    cout << "     \\||.||/    " << endl;
+    gotoxy(e2X, e2Y + 3);
+    cout << "      \\\\V//    " << endl;
+    gotoxy(e2X, e2Y + 4);
+    cout << "       \\./      " << endl;
+}
+void eraseEnemy2()
+{
+    gotoxy(e2X, e2Y);
+    cout << "                 " << endl;
+    gotoxy(e2X, e2Y + 1);
+    cout << "                 " << endl;
+    gotoxy(e2X, e2Y + 2);
+    cout << "                 " << endl;
+    gotoxy(e2X, e2Y + 3);
+    cout << "                 " << endl;
+    gotoxy(e2X, e2Y + 4);
+    cout << "                 " << endl;
+}
+void Direction2()
+{
+    if (getCharAtxy(e2X, e2Y - 2) == '#')
+        direction2 = 'D';
+    else if (getCharAtxy(e2X, e2Y + 5) == '#')
+        direction2 = 'U';
+}
+void moveEnemy2()
+{
+    eraseEnemy2();
+    if (direction2 == 'D')
+        e2Y++;
+    else if (direction2 == 'U')
+        e2Y--;
+    printEnemy2();
+}
+void printEnemy3()
+{
+    gotoxy(e3X, e3Y);
+    cout << "         \\\\    " << endl;
+    gotoxy(e3X, e3Y + 1);
+    cout << "      /| / \\__  " << endl;
+    gotoxy(e3X, e3Y + 2);
+    cout << "--===o========>- " << endl;
+    gotoxy(e3X, e3Y + 3);
+    cout << "      \\| \\ /-- " << endl;
+    gotoxy(e3X, e3Y + 4);
+    cout << "         //      " << endl;
+}
+void eraseEnemy3()
+{
+    gotoxy(e3X, e3Y);
+    cout << "                 " << endl;
+    gotoxy(e3X, e3Y + 1);
+    cout << "                 " << endl;
+    gotoxy(e3X, e3Y + 2);
+    cout << "                 " << endl;
+    gotoxy(e3X, e3Y + 3);
+    cout << "                 " << endl;
+    gotoxy(e3X, e3Y + 4);
+    cout << "                 " << endl;
+}
+void Direction3()
+{
+    if (getCharAtxy(e3X + 19, e3Y) == '#' || getCharAtxy(e3X, e3Y + 6) == '#')
+        direction3 = "LU";
+    else if (getCharAtxy(e3X - 1, e3Y) == '#' || getCharAtxy(e3X, e3Y - 1) == '#')
+        direction3 = "RD";
+}
+void moveEnemy3()
+{
+    eraseEnemy3();
+    if (direction3 == "RD")
     {
-        direction == 'L';
-        return;
-        
+        e3X++;
+        e3Y++;
     }
-    printEnemy();
-    Sleep(10);
+    else if (direction3 == "LU")
+    {
+        e3X--;
+        e3Y--;
+    }
+    printEnemy3();
 }
-void getDirection() {
-    if(eX==105) direction=='L';
-    if(eX==5) direction=='R';
-}
-void moveEnemy(){
-    if(direction=='R') moveEnemyToTheRight();
-    if(direction=='L') moveEnemyToTheLeft(); 
-}
-void movementEnemy(char direction) {
-    eraseEnemy();
-    if(direction == 'R') eX++;
-    if(direction == 'L') eX--;
-    printEnemy();
-    Sleep(10);
-}
-// Player Functions
 void printPlayer()
 {
     gotoxy(pX, pY);
@@ -163,7 +286,6 @@ void movePlayerToTheRight()
 void movePlayerUP()
 {
     erasePlayer();
-    erasePlayer();
     pY--;
     if (pY == 4)
     {
@@ -174,11 +296,10 @@ void movePlayerUP()
 void movePlayerDown()
 {
     erasePlayer();
-    erasePlayer();
     pY++;
-    if (pY == 28)
+    if (getCharAtxy(pX, pY + 6) == '#')
     {
-        pY =28;
+        pY -= 1;
     }
     printPlayer();
 }
@@ -195,6 +316,7 @@ void movePlayerDiagonalUpLeft()
     {
         pY = 5;
     }
+    printPlayer();
 }
 void movePlayerDiagonalUpRight()
 {
@@ -209,6 +331,7 @@ void movePlayerDiagonalUpRight()
     {
         pY = 5;
     }
+    printPlayer();
 }
 void movePlayerDiagonalDownLeft()
 {
@@ -219,10 +342,11 @@ void movePlayerDiagonalDownLeft()
     {
         pX = 89;
     }
-    if (pY == 28)
+    if (getCharAtxy(pX, pY + 6) == '#')
     {
-        pY = 28;
+        pY -= 1;
     }
+    printPlayer();
 }
 void movePlayerDiagonalDownRight()
 {
@@ -233,11 +357,13 @@ void movePlayerDiagonalDownRight()
     {
         pX = 89;
     }
-    if (pY == 28)
+    if (getCharAtxy(pX, pY + 6) == '#')
     {
-        pY = 28;
+        pY -= 1;
     }
+    printPlayer();
 }
+
 // Shooting mechanics
 void bullet()
 {
@@ -259,26 +385,31 @@ void shootEnemy(int pX, int pY)
         gotoxy(posNozzle, bY);
         bullet();
         Sleep(10);
-        if (bY == 5)
+        if (bY == 4)
         {
             break;
+            eraseBullet();
         }
-        if (bY == eY + 4 && posNozzle >= eX && posNozzle <= eX + 8)
+        if (bY == eY + 5 && posNozzle >= eX && posNozzle <= eX + 8)
         {
             enemyHealth -= 10;
             cout << "Criticle Hit! -10";
             Sleep(10);
             cout << "                    ";
             if (enemyHealth <= 0)
-            {      
+            {
                 break;
             }
         }
     }
+    eraseBullet();
 }
+
 // Winning Status
-void youWon(){
-    cout << " #     # ####### #      #     #     # ####### #     # " << endl;
+void youWon()
+{
+    system("cls");
+    cout << " #     # ####### #     #      #     # ####### #     # " << endl;
     cout << "  #   #  #     # #     #      #  #  # #     # ##    # " << endl;
     cout << "   # #   #     # #     #      #  #  # #     # # #   # " << endl;
     cout << "    #    #     # #     #      #  #  # #     # #  #  # " << endl;
@@ -286,7 +417,9 @@ void youWon(){
     cout << "    #    #     # #     #      #  #  # #     # #    ## " << endl;
     cout << "    #    #######  #####        ## ##  ####### #     # " << endl;
 }
-void youLost(){
+void youLost()
+{
+    system("cls");
     cout << " #     # ####### #     #    #       #######  #####  ####### " << endl;
     cout << "  #   #  #     # #     #    #       #     # #     #    #    " << endl;
     cout << "   # #   #     # #     #    #       #     # #          #    " << endl;
@@ -294,60 +427,70 @@ void youLost(){
     cout << "    #    #     # #     #    #       #     #       #    #    " << endl;
     cout << "    #    #     # #     #    #       #     # #     #    #    " << endl;
     cout << "    #    #######  #####     ####### #######  #####     #    " << endl;
-    }
+}
 
-
-main()
+int main()
 {
     system("cls");
     maze();
-    // direction = 'R';
+    printEnemy();
+    printEnemy2();
+    printEnemy3();
+    bonusPill();
     while (true)
     {
+
         gotoxy(90, 1);
         cout << "Enemy Health : " << enemyHealth << endl;
-        printEnemy();
+        gotoxy(90, 2);
+        cout << "Game Score : " << gameScore << endl;
+        // backGround();
+        getBonus();
+        Direction();
+        Direction2();
+        Direction3();
+        movemenentEnemy();
+        moveEnemy2();
+        moveEnemy3();
         printPlayer();
-        getDirection();
-        moveEnemy();
         if (GetAsyncKeyState(VK_LEFT))
         {
             movePlayerToTheLeft();
         }
-        else if (GetAsyncKeyState(VK_RIGHT))
+        if (GetAsyncKeyState(VK_RIGHT))
         {
             movePlayerToTheRight();
         }
-        else if (GetAsyncKeyState(VK_UP))
+        if (GetAsyncKeyState(VK_UP))
         {
             movePlayerUP();
         }
-        else if (GetAsyncKeyState(VK_DOWN))
+        if (GetAsyncKeyState(VK_DOWN))
         {
             movePlayerDown();
         }
-        else if (GetAsyncKeyState(VK_UP) && GetAsyncKeyState(VK_LEFT))
+        if (GetAsyncKeyState(VK_UP) && GetAsyncKeyState(VK_LEFT))
         {
             movePlayerDiagonalUpLeft();
         }
-        else if (GetAsyncKeyState(VK_UP) && GetAsyncKeyState(VK_RIGHT))
+        if (GetAsyncKeyState(VK_UP) && GetAsyncKeyState(VK_RIGHT))
         {
             movePlayerDiagonalUpRight();
         }
-        else if (GetAsyncKeyState(VK_DOWN) && GetAsyncKeyState(VK_LEFT))
+        if (GetAsyncKeyState(VK_DOWN) && GetAsyncKeyState(VK_LEFT))
         {
             movePlayerDiagonalDownLeft();
         }
-        else if (GetAsyncKeyState(VK_DOWN) && GetAsyncKeyState(VK_RIGHT))
+        if (GetAsyncKeyState(VK_DOWN) && GetAsyncKeyState(VK_RIGHT))
         {
             movePlayerDiagonalDownRight();
         }
-        else if (GetAsyncKeyState(VK_SPACE))
+        if (GetAsyncKeyState(VK_SPACE))
         {
             shootEnemy(pX, pY);
         }
 
-        if (pY == eY)
+        if (pY == eY + 5 && (pX == eX))
         {
             youLost();
             break;
@@ -355,12 +498,10 @@ main()
 
         if (enemyHealth == 0)
         {
-            eraseEnemy();
+
             youWon();
             break;
         }
-        cout<<direction; 
     }
-
-    gotoxy(1, 1000);
+    return 0;
 }

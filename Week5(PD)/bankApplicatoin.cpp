@@ -12,6 +12,8 @@ int opt;
 char ch;
 float loanAmount, payment, interestRate, years;
 int option;
+string name, email2;
+int CNIC, accNumber, PIN2;
 void printInterface(){
     cout << "___   ___ ____    ____  ________     .______        ___      .__   __.  __  ___ " << endl;
     cout << "\\  \\ /  / \\   \\  /   / |       /     |   _  \\      /   \\     |  \\ |  | |  |/  / " << endl;
@@ -42,7 +44,7 @@ void printHeader(){
     cin>>userEmail;
     cout<<"PIN : ";
     cin>>userPIN;
-    cout<<"Forgot Password?";
+    
     
 }
 void body(){
@@ -191,7 +193,7 @@ void calculateLoanBalance(){
 
 }
 void logInSuccessful(){
-    if(userEmail == email && userPIN == PIN){
+    
         while(true){
             // system("cls");
             // printHeader();
@@ -231,20 +233,40 @@ void logInSuccessful(){
                 cout<<"Invalid choice"<<endl;
                 printHeader();
             }
-        }
+        
         
         
     }
-    else{
-            cout<<"Invalid Email or PIN"<<endl;
-            Footer();
-
-        }
+    
+}
+void signUP(){
+    cout<<"Enter your name : ";
+    cin>>name;
+    cout<<"Enter your CNIC";
+    cin>>CNIC;
+    cout<<"Enter your bank account Number";
+    cin>>accNumber;
+    cout<<"Enter your email";
+    cin>>email2;
+    cout<<"Enter your password";
+    cin>>PIN2;
+    cout<<"Congratulations! you have successfully been registered to XYZ bank.\n Login to your bank account with the same credentials";
+    printInterface();
 }
 main(){
     printInterface();
     if(option==1){
         system("cls");
-
+        printHeader();
+        if(userEmail == email || userEmail == email2 && userPIN == PIN || userPIN == PIN2){
+            logInSuccessful();
+        }
+        else{
+            cout<<"Invalid username or password";
+            printHeader();
+        }
+    }
+    else if(option == 2){
+        signUP();
     }
 }
