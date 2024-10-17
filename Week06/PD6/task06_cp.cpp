@@ -6,7 +6,7 @@ string calculateHotelPrices(string month, int numberOfStays)
     if (month == "may" || month == "october")
     {
         if (numberOfStays > 7 && numberOfStays<=14)
-            studio = 50 * numberOfStays * 0.94;
+            studio = 50 * numberOfStays * 0.95;
         else if (numberOfStays > 14)
         {
             studio = 50 * numberOfStays * .70;

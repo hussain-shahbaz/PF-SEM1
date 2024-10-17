@@ -6,7 +6,9 @@ string checkPointPosition(int h, int x, int y){
     else if((x == 0 && y >= 0 && y <= h) || 
         (x == h && y >= 0 && y <= 4 * h) || 
         (x == 2 * h && y >= 0 && y <= 3 * h) || 
-        (y == 0 && x >= 0 && x <= 2 * h) || 
+        (y == 0 && x >= 0 && 
+        
+        x <= 2 * h) || 
         (y == h && x >= 0 && x <= 2 * h) ||
         (y == 2 * h && x >= h && x <= 2 * h) ||
         (y == 3 * h && x >= h && x <= 2 * h) || 

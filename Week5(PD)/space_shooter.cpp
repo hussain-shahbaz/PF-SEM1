@@ -79,7 +79,7 @@ void backGround()
 }
 void bonusPill()
 {
-    gotoxy(bX, bY);
+    gotoxy(bX, bY); 
     cout << ">0<";
 }
 void eraseBonusPill()
