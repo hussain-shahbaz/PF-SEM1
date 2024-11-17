@@ -789,6 +789,7 @@ void adminFunction(){
 
 
 main(){ 
+    system("cls");
     while(true){
         start:
         printInterface();
