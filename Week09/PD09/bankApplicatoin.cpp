@@ -53,15 +53,11 @@ int transactionCount[userNumbers] = {0};
 
 int accNo;
 string password;
-int money;
-int balance = 50000;
 string email;
 string userEmail;
 int userPIN;
 int cash;
 int opt;
-char ch;
-float loanAmount, payment, interestRate, years;
 char option;
 string adminEmail = "admin";
 int adminPass = 1234;
@@ -341,6 +337,7 @@ void History(int userNo){
 }
 
 void payBills(){
+char ch;
     cout<<"Which bill you want to pay? "<<endl;
     cout<<"Press 1 for Electricity "<<endl;
     cout<<"Press 2 for Gas "<<endl;
@@ -414,6 +411,7 @@ void payBills(){
 }
 
 void payTax(){
+    char ch;
     cout<<"The tax is $50, do you proceed to Pay?(Y/n)"<<endl;
     cin>>ch;
     if(ch == 'Y'){
@@ -431,6 +429,7 @@ void payTax(){
 }
 
 void calculateLoanBalance(){
+    float loanAmount, payment, interestRate, years;
     cout<<"Enter the loan amount: $";
     cin>>loanAmount;
     cout<<"Enter the annual interest rate: %";
@@ -457,6 +456,7 @@ void checkDebt(){
 }
 
 void payDebt(){
+    char ch;    
     if(debtData[userNo] == 0){
         cout<<"You are debt Free."<<endl;
         return;
@@ -492,7 +492,7 @@ void transferMoney(){
     }
     cout<<"Enter amount you want to transfer: "<<endl;
     cin>>cash;
-    if(cash>balance){
+    if(cash>balanceData[userNo]){
         cout<<"You dont have enough money."<<endl;
         pressAnyKey();
         return;
@@ -623,14 +623,14 @@ void adminAddSubtractMoney(){
         cin>>option;
         if (option == '2'){
             cout<<"how many money you want to remove: $";
-            cin>>money;
-            balanceData[userNo]-=money;
-            cout<<"money has been removed";
+            cin>>cash;
+            balanceData[userNo]-=cash;
+            cout<<"cash has been removed";
         }
         if (option == '1'){
             cout<<"how many money you want to add: $";
-            cin>>money;
-            balanceData[userNo]+=money;
+            cin>>cash;
+            balanceData[userNo]+=cash;
             cout<<"money has been added";
         }
     }
