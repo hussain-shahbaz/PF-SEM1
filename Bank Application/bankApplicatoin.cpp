@@ -661,7 +661,7 @@ void adminViewUser() {
 
 void adminLoan(){
     if(loanApplicationData[userNo] == 1){
-        cout<<"Loan Application by user: "<<nameData[userNo]<<" of amount $"<<loanAmountData[userNo]<<"for: "<<yearsData<<"Years"<<endl;
+        cout<<"Loan Application by user: "<<nameData[userNo]<<" of amount $"<<loanAmountData[userNo]<<"for: "<<yearsData[userNo]<<"Years"<<endl;
         cout<<"Press 1 to approve, 0 to reject";
         cin>>loanApprovalData[userNo];
         if(loanApprovalData[userNo]==1){
