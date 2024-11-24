@@ -9,7 +9,7 @@ char getCharAtxy(short int x, short int y)
     SMALL_RECT rect = {x, y, x, y};
     COORD coordBufSize;
     coordBufSize.X    = 1;
-    coordBufSize.Y = 1;
+    coordBufSize.Y = 1; 
     return ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, coordBufSize, xy, &rect) ? ci.Char.AsciiChar : ' ';
 }
 void gotoxy(int x, int y)
