@@ -1,0 +1,2 @@
+to prevent momery leaks, which degrades perfomance
+if we dont free memory, waster memory accumulates, causing crashes and slowdowns in long-running programs

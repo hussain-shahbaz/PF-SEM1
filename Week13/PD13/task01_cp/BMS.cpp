@@ -1,9 +1,9 @@
- #include<iostream>
-#include<vector>
+#include<iostream>
 #include<cmath>
 #include<iomanip>
 #include<conio.h>
 #include<string>
+#include<fstream>
 #include <time.h>
 using namespace std;
 // Get current date/time, format is YYYY-MM-DD.HH:mm:ss
@@ -13,54 +13,147 @@ const string currentDateTime() {
     char       buf[80];
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-
     return buf;
 }
 
+float myStof(const std::string& str) {
+    float result = 0.0;
+    int i = 0;
+    while (i < str.size() && str[i] >= '0' && str[i] <= '9') {
+        result = result * 10 + (str[i] - '0');
+        i++;
+    }
+    if (i < str.size() && str[i] == '.') {
+        i++;
+        float decimalPlace = 0.1;
+        while (i < str.size() && str[i] >= '0' && str[i] <= '9') {
+            result += (str[i] - '0') * decimalPlace;
+            decimalPlace /= 10;
+            i++;
+        }
+    }
+    return result;
+}
+
+void anyKey(){
+    cout<<"Press any key to continue: "<<endl;
+    getch();
+}
 /*Data*/
-const int userNumbers = 10;
-int userCount =2;
-string nameData[userNumbers] =          {"Hussain","Ayyan"};            
-string emailData[userNumbers] =         {"first@UET.com","second@UET.com"};
-string passwordData[userNumbers] =      {"1234","4568"};
-string DOBData[userNumbers] =           {"23-06-2005","25-10-2007"};
-string CNICData[userNumbers]  =         {"33201-9664417-5","55555-7777777-1"};
+const int userNumbers = 20;
+int userCount =0;
+string nameData[userNumbers] =          {};            
+string emailData[userNumbers] =         {};
+string passwordData[userNumbers] =      {};
+string DOBData[userNumbers] =           {};
+string CNICData[userNumbers]  =         {};
 
-int accNumberData[userNumbers] =        {1111,1112};
+int accNumberData[userNumbers] =        {};
 
-int balanceData[userNumbers] =          {500,230000};
-float debtData[userNumbers] =           {0,0};
-int debt[userNumbers]                   {0,0};
+int balanceData[userNumbers] =          {};
+float debtData[userNumbers] =           {};
+int debt[userNumbers]                   {};
 
-float loanAmountData[userNumbers] =     {0.0,0.0};
-float interest[userNumbers] =           {0,0};
+float loanAmountData[userNumbers] =     {};
+float interest[userNumbers] =           {};
 float yearsData[userNumbers];
 
 
-bool loanApplicationData[userNumbers] = {0};
-int loanApprovalData[userNumbers] =        {0};
+bool loanApplicationData[userNumbers] =    {};
+int loanApprovalData[userNumbers] =        {};
 
 int userNo;
 const int transactionLimit = 50;
 
 string transactionHistory[userNumbers][transactionLimit];
-int transactionCount[userNumbers] = {0};
+int transactionCount[userNumbers] = {};
 
 int accNo;
 string password;
 string email;
 string userEmail;
-int userPIN;
+string userPIN;
 int cash;
+string money;
 int opt;
-char option;
+string option;
 string adminEmail = "admin";
-int adminPass = 1234;
-float loanMoney;
+string adminPass = "1234";
+
+// File Handling
+string getField(string record,int field){
+    int commaCount = 0;
+    string item = "";
+    for(int i=0;i<record.size();i++){
+        if(record[i] == ','){
+            commaCount ++;
+        }
+        else if(commaCount == field){
+            item += record[i];
+        }
+    }
+    return item;
+}
+
+int myStoi(string str){
+    int number = 0;
+    for(int i=0;str[i] != '\0';i++){
+        number = number*10 + (str[i] - '0');
+    }
+    return number;
+}
+
+void loadData() {
+    fstream data;
+    string record;
+    data.open("creds.txt", ios::in);
+    while (getline(data, record)) {
+        string name = getField(record, 0);
+        string email = getField(record, 1);
+        string dob = getField(record, 2);
+        string password = getField(record, 3);
+        string cnic = getField(record, 4);
+        int accNumber = myStoi(getField(record, 5));
+        int balance = myStoi(getField(record, 6));
+        float debt = myStof(getField(record, 7));
+        nameData[userCount] = name;
+        emailData[userCount] = email;
+        DOBData[userCount] = dob;
+        passwordData[userCount] = password;
+        CNICData[userCount] = cnic;
+        accNumberData[userCount] = accNumber;
+        balanceData[userCount] = balance;
+        debtData[userCount] = debt;
+        userCount++;
+    }
+    data.close();
+}
+
+void storeData() {
+    fstream data;
+    data.open("creds.txt", ios::out);
+
+    for (int i = 0; i < userCount; i++) {
+        string record = nameData[i] + "," + 
+                        emailData[i] + "," + 
+                        DOBData[i] + "," + 
+                        passwordData[i] + "," + 
+                        CNICData[i] + "," + 
+                        to_string(accNumberData[i]) + "," + 
+                        to_string(balanceData[i]) + "," + 
+                        to_string(debtData[i]);
+        data << record << endl;
+    }
+
+    data.close();
+}
 
 
 // INTERFACE
+
+
 void printInterface(){
+    system("cls");
     cout<<endl;
     cout << "___   ___ ____    ____  ________     .______        ___      .__   __.  __  ___ " << endl;
     cout << "\\  \\ /  / \\   \\  /   / |       /     |   _  \\      /   \\     |  \\ |  | |  |/  / " << endl;
@@ -136,6 +229,13 @@ void DeleteUserData(int userNo){
     userCount--;
 }
 
+bool digitValidator(string num){
+    for(int i=0;i<num.size();i++){
+        if(!isdigit(num[i])) return false;
+    }
+    return true;
+}
+
 bool CNICval(string cnic){
     if(cnic.size() != 15) return false;
     for(int i=0;i<15;i++){
@@ -163,6 +263,7 @@ bool isValidDOB(int day, int month, int year) {
     if (day<1 || day>daysInMonth[month - 1]) {
         return false; 
     }
+    if(year >2024) return false;
     return true;
 }
 bool isValidDOBFormat(string dob) {
@@ -187,17 +288,26 @@ bool checkCom(string email){
     for(int i=email.size()-1;i>email.size()-5;i--){
         sub+= email[i];
     }
+    for(char ch : email){
+        if(ch == ' ') return false;
+    }
     if(sub == com) return true;
     return false;
 }
+
 bool checkAt(string email){
     for(int i=0;email[i] != '.';i++){
         if(email[i] == '@') return true;
     }
     return false;
 }
+bool checkSpace(string email){
+    for(int i=0;i<email[i] != '\0';i++){
+        if(email[i] = ' ') return false;
+    }
+}
 bool emailVal(string email){
-    return checkAt(email) && checkCom(email);
+    return checkAt(email) && checkCom(email) && !checkSpace(email);
 }
 int getCNIC(string cnic){
     for(int i=0;i<userCount;i++){
@@ -256,7 +366,7 @@ void ApplyforLoan(){
 }
 void checkLoanStatus(){
     if(loanApprovalData[userNo]==1){
-        cout<<"Your loan of $ "<<loanMoney<<" has been approved with interest rate: "<<interest<<endl;
+        cout<<"Your loan of $ "<<loanAmountData[userNo]<<" has been approved with interest rate: "<<interest[userNo]<<endl;
         loanApprovalData[userNo] = -1;
     }
     else if(loanApprovalData[userNo]==0){
@@ -270,8 +380,15 @@ void checkLoanStatus(){
 }
 
 void transaction(){
+    wrongData:
     cout<<"How many dollars you want to withdraw? $";
-    cin>>cash;
+    cin>>money;
+    if(!digitValidator(money)){
+        cout<<"Plese enter valid money"<<endl;
+        anyKey();
+        goto wrongData;
+    }
+    cash = myStoi(money);
     if(cash>balanceData[userNo]){
         cout<<"Sorry! You cannot withdraw since you have less amount"<<endl;
     }
@@ -286,8 +403,15 @@ void transaction(){
 }
 
 void addMoney(){
+    wrongData:
     cout<<"How many dollars you want to add? ";
-    cin>>cash;
+    cin>>money;
+    if(!digitValidator(money)){
+        cout<<"Plese enter valid money"<<endl;
+        anyKey();
+        goto wrongData;
+    }
+    cash = myStoi(money);
     balanceData[userNo]+=cash;
     cout<<"Money added successfully"<<endl;
     cout<<"Your balance is $"<< balanceData[userNo]<<endl;
@@ -302,12 +426,25 @@ void checkBalance(){
 }
 
 void donations(){
+    wrongOption:
     cout<<"Which organization you want to donate? "<<endl;
     cout<<"Press 1 for Palestine "<<endl;
     cout<<"Press 2 for Al-Khidmat Foundation "<<endl;
-    cin>>opt;
+    cin>>option;
+    if(option != "1" && option != "2"){ 
+        cout<<"please enter a valid option";
+        anyKey();
+        goto wrongOption;
+    }
+    wrongData:
     cout<<"How many Dollars you want to donate?"<<endl;
-    cin>>cash;
+    cin>>money;
+    if(!digitValidator(money)){
+        cout<<"Plese enter valid money"<<endl;
+        anyKey();
+        goto wrongData;
+    }
+    cash = myStoi(money);
     balanceData[userNo] = balanceData[userNo] - cash;
     cout<<"Donation successful"<<endl;
     cout<<"Your balance is $"<<balanceData[userNo]<<endl;
@@ -326,75 +463,75 @@ void History(int userNo){
     }
     cout<<"Transaction History: "<<endl;
     for(int i=0;i<transactionCount[userNo];i++){
-        cout<<i+1<<". "<<transactionHistory[userNo][i]<<endl<<endl;
+        cout<<i+1<<". "<<transactionHistory[userNo][i]<<endl;
     }
     pressAnyKey();
 }
 
 void payBills(){
-char ch;
+    string ch;
     cout<<"Which bill you want to pay? "<<endl;
     cout<<"Press 1 for Electricity "<<endl;
     cout<<"Press 2 for Gas "<<endl;
     cout<<"Press 3 for Water "<<endl;
     cout<<"Press 4 for University fees "<<endl;
     cout<<"Press 5 for taxes(if payable) "<<endl;
-    cin>>opt;
-    if(opt ==1) {
+    cin>>option;
+    if(option =="1") {
         cout<<"The Electricity Bill is $30, do you proceed to Pay?(Y/n)"<<endl;
         cin>>ch;
-        if(ch == 'Y'){
+        if(ch == "Y"){
             balanceData[userNo] = balanceData[userNo] - 30;
             cout<<"successful";
             cout<<"Your balance is $"<<balanceData[userNo]<<endl;
             
-            transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + "USD Paid on Electricity Bills on date: " + currentDateTime();
+            transactionHistory[userNo][transactionCount[userNo]] = to_string(30) + "USD Paid on Electricity Bills on date: " + currentDateTime();
             transactionCount[userNo]++;
         }
         else{
             cout<<"Transaction cancelled"<<endl;
         }
     }
-    else if(opt == 2){
+    else if(option == "2"){
         cout<<"The Gas Bill is $50, do you proceed to Pay?(Y/n)"<<endl;
         cin>>ch;
-        if(ch == 'Y'){
+        if(ch == "Y"){
             balanceData[userNo] = balanceData[userNo] - 50;
             cout<<"successful";
             cout<<"Your balance is $"<<balanceData[userNo]<<endl;
             
-            transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + "USD Paid on Gas on date: " + currentDateTime();
+            transactionHistory[userNo][transactionCount[userNo]] = to_string(50) + "USD Paid on Gas on date: " + currentDateTime();
             transactionCount[userNo]++;
         }
         else{
             cout<<"Transaction cancelled"<<endl;
         }
     }
-    else if(opt == 3){
+    else if(option == "3"){
         cout<<"The Water Bill is $20, do you proceed to Pay?(Y/n)"<<endl;
         cin>>ch;
-        if(ch == 'Y'){
+        if(ch == "Y"){
             balanceData[userNo] = balanceData[userNo] - 20;
             cout<<"successful";
             cout<<"Your balance is $"<<balanceData[userNo]<<endl;
             
     
-            transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + "USD Paid on water Bill on date: " + currentDateTime();
+            transactionHistory[userNo][transactionCount[userNo]] = to_string(20) + "USD Paid on water Bill on date: " + currentDateTime();
             transactionCount[userNo]++;
         }
         else{
             cout<<"Transaction cancelled"<<endl;
         }
     }
-    else if(opt == 4){
+    else if(option == "4"){
         cout<<"The semester fee is $100, do you proceed to Pay?(Y/n)"<<endl;
         cin>>ch;
-        if(ch == 'Y'){
+        if(ch == "Y"){
             balanceData[userNo] = balanceData[userNo] - 100;
             cout<<"Fee successful";
             cout<<"Your balance is $"<<balanceData[userNo]<<endl;
             
-            transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + "USD Paid on Semester Fees on date: " + currentDateTime();
+            transactionHistory[userNo][transactionCount[userNo]] = to_string(100) + "USD Paid on Semester Fees on date: " + currentDateTime();
             transactionCount[userNo]++;
         }
         else{
@@ -406,10 +543,10 @@ char ch;
 }
 
 void payTax(){
-    char ch;
+    string ch;
     cout<<"The tax is $50, do you proceed to Pay?(Y/n)"<<endl;
     cin>>ch;
-    if(ch == 'Y'){
+    if(ch == "Y"){
         balanceData[userNo] = balanceData[userNo] - 50;
         cout<<"Tax successful";
         cout<<"Your balance is $"<<balanceData[userNo]<<endl;
@@ -451,23 +588,24 @@ void checkDebt(){
 }
 
 void payDebt(){
-    char ch;    
+    string ch;    
     if(debtData[userNo] == 0){
         cout<<"You are debt Free."<<endl;
         return;
     }
+    cout<<"Your debt is: "<< debtData[userNo]<<endl;
     cout<<"Are you sure you want to pay the debt: (Y/n)"<<endl;
     cin>>ch;
-    if(ch == 'Y' && balanceData[userNo] >= debt[userNo]){
+    if(ch == "Y" && balanceData[userNo] >= debt[userNo]){
         balanceData[userNo] -= debt[userNo];
         debt[userNo] = 0;
         cout<<"You have paid your debt"<<endl;
         cout<<"Your remaining balance: $"<<balanceData[userNo]<<endl;
         
-        transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + " USD Paid on Debt on date: " + currentDateTime();
+        transactionHistory[userNo][transactionCount[userNo]] = to_string(debt[userNo]) + " USD Paid on Debt on date: " + currentDateTime();
         transactionCount[userNo]++;
     }
-    else if(ch == 'n'){
+    else if(ch == "n"){
         cout<<"Debt payment dismissed."<<endl;
         return;
     }
@@ -478,15 +616,30 @@ void payDebt(){
 }
 
 void transferMoney(){
+    string acc;
+    wrongData:
     cout<<"Enter the account Number: ";
-    cin>>accNo;
+    cin>>acc;
+    if(!digitValidator(acc)){
+        cout<<"Please Enter a valid account number: ";
+        anyKey();
+        goto wrongData;
+    }
+    accNo = myStoi(acc);
     if(getAccNo(accNo) == -1){
         cout<<"No such account number exists."<<endl;
         pressAnyKey();
         return;
     }
+    wrongData1:
     cout<<"Enter amount you want to transfer: "<<endl;
-    cin>>cash;
+    cin>>money;
+    if(!digitValidator(money)){
+        cout<<"Plese enter valid money"<<endl;
+        anyKey();
+        goto wrongData1;
+    }
+    cash = myStoi(money);
     if(cash>balanceData[userNo]){
         cout<<"You dont have enough money."<<endl;
         pressAnyKey();
@@ -496,7 +649,7 @@ void transferMoney(){
     balanceData[getAccNo(accNo)] += cash;
     cout<<cash<<"USD transferred successfully to "<<nameData[getAccNo(accNo)]<<endl;
     
-    transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + " USD Paid transferred to " + nameData[getAccNo(accNo)] + "on date: " + currentDateTime();
+    transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + " USD Paid transferred to " + nameData[getAccNo(accNo)] + " on date: " + currentDateTime();
     transactionCount[userNo]++;
     pressAnyKey();
 }
@@ -504,46 +657,102 @@ void transferMoney(){
 void logInSuccessful() {
     while (true) { 
         body();
-        int choice;
-        // cin >> choice;
+        string choice;
         if (!(cin >> choice)) {
             cin.clear();  
             cout << "Invalid input. Please enter a number." << endl;
             pressAnyKey();  
             continue; 
         }
-        switch (choice) {
-            case 1: transaction(); break;
-            case 2: addMoney(); break;
-            case 3: checkBalance(); break;
-            case 4: donations(); break;
-            case 5: History(userNo); break;
-            case 6: payBills(); break;
-            case 7: calculateLoanBalance(); break;
-            case 8: ApplyforLoan(); break;
-            case 9: checkLoanStatus(); break;
-            case 10: checkDebt(); break;
-            case 11: transferMoney(); break;
-            case 12: payDebt(); break;
-            case -1: return;
-            case 0: Footer(); exit(0);
-            default: cout << "Invalid choice, try again." << endl; pressAnyKey();
-        }
+        
+            if(choice == "1"){ transaction(); }
+            else if(choice == "2"){ addMoney(); }
+            else if(choice == "3"){ checkBalance(); }
+            else if(choice == "4") {donations();}
+            else if(choice == "5"){ History(userNo);}
+            else if(choice == "6"){payBills(); }
+            else if(choice == "7") {calculateLoanBalance(); }
+            else if(choice == "8"){ ApplyforLoan();}
+            else if(choice == "9") {checkLoanStatus();}
+            else if(choice == "10") {checkDebt();}
+            else if(choice == "11") {transferMoney();}
+            else if(choice == "12") {payDebt();}
+            else if(choice == "-1") return;
+            else if(choice == "0") {Footer(); break;}
+            else {cout << "Invalid choice, try again." << endl; pressAnyKey();}
+        
     }
     printInterface();
 }
 
+
+void storeHistory() {
+    fstream file;
+    file.open("history.txt", ios::out);
+
+    for (int i = 0; i < userCount; i++) {
+        file << accNumberData[i] << ","; 
+        for (int j = 0; j < transactionCount[i]; j++) {
+            file << transactionHistory[i][j]; 
+            if (j != transactionCount[i] - 1) {
+                file << ",";
+            }
+        }
+
+        file << "\n"; 
+    }
+
+    file.close(); 
+}
+
+void loadHistory() {
+    fstream file;
+    file.open("history.txt", ios::in);  
+    string line;
+    int i = 0;
+    while (getline(file, line)){
+        line = line.substr(5);
+        int j = 0; 
+        int pos = 0;
+        while (pos < line.length()) {
+            int nextComma = pos;
+            while (nextComma < line.length() && line[nextComma] != ',') {
+                nextComma++;
+            }
+            string transaction = line.substr(pos, nextComma - pos);
+            transactionHistory[i][j] = transaction;
+            pos = nextComma + 1;
+            j++;
+        }
+        transactionCount[i] = j;
+        i++;  
+    }
+
+    file.close(); 
+}
+bool nameValidator(string str){
+    for(char ch:str){
+        if(isdigit(ch)) return false;
+    }
+    return true;
+}
 // Sign UP
 
 void signUP(){
     if(checkUserCapacity()){
         string cnic,DOB,email2,password,name;
+        wrongName:
         cout<<"Enter your name : ";
         cin.ignore();
         getline(cin,name);
+        if(!nameValidator(name)){
+            cout<<"please enter valid name: "<<endl;
+            anyKey();
+            goto wrongName;
+        }
         nameData[userNo] = name;
         DOB:
-        cout<<"Enter your Date of birth: ";
+        cout<<"Enter your Date of birth:(DD-MM-YYYY) ";
         cin>>DOB;
         if(isValidDOBFormat(DOB)){
             DOBData[userNo] = DOB;
@@ -583,13 +792,15 @@ void signUP(){
         cout<<"Enter your password: ";
         cin>>passwordData[userNo];
         cout<<"Congratulations! you have successfully been registered to XYZ bank.\n Login to your bank account with the same credentials";
-            userCount++;
+        userCount++;
     }
+    
     else{
         cout<<"The bank is full, contact the admin."<<endl;
         pressAnyKey();
         return;
     }
+
     accNumberData[userNo] = accNumberData[userNo-1] + 1;
     balanceData[userNo] = 0;
     debtData[userNo] = 0;
@@ -600,6 +811,7 @@ void signUP(){
 // ADMIN
 
 void adminLogin(){
+    system("cls");
     cout<<endl;
     cout << "___   ___ ____    ____  ________     .______        ___      .__   __.  __  ___ " << endl;
     cout << "\\  \\ /  / \\   \\  /   / |       /     |   _  \\      /   \\     |  \\ |  | |  |/  / " << endl;
@@ -622,17 +834,30 @@ void adminAddSubtractMoney(){
     }
     else{
         userNo = getUserEmail(userEmail);
+        wrongData:
         cout<<"Press 1 to add money, 2 to subtract money";
         cin>>option;
-        if (option == '2'){
+        if (option == "1"){
             cout<<"how many money you want to remove: $";
-            cin>>cash;
+            cin>>money;
+            if(!digitValidator(money)){
+                cout<<"enter valid money";
+                anyKey();
+                goto wrongData;
+            }
+            cash = myStoi(money);
             balanceData[userNo]-=cash;
             cout<<"cash has been removed";
         }
-        if (option == '1'){
+        if (option == "2"){
             cout<<"how many money you want to add: $";
-            cin>>cash;
+           cin>>money;
+            if(!digitValidator(money)){
+                cout<<"enter valid money";
+                anyKey();
+                goto wrongData;
+            }
+            cash = myStoi(money);
             balanceData[userNo]+=cash;
             cout<<"money has been added";
         }
@@ -671,16 +896,31 @@ void adminViewUser() {
 void adminLoan(){
     if(loanApplicationData[userNo] == 1){
         cout<<"Loan Application by user: "<<nameData[userNo]<<" of amount $"<<loanAmountData[userNo]<<"for: "<<yearsData[userNo]<<"Years"<<endl;
-        cout<<"Press 1 to approve, 0 to reject";
-        cin>>loanApprovalData[userNo];
+        wrongLoan:
+        cout<<"Press Y to approve, n to reject: ";
+        cin.ignore();
+        cin>>option; 
+        if(option != "1" && option!= "0"){
+            cout<<"please enter valid option"<<endl;
+            anyKey();
+            goto wrongLoan;
+        }
+        loanApprovalData[userNo] = myStoi(option);
+        wrongInterest:
         if(loanApprovalData[userNo]==1){
             cout<<"Enter interest Rate: ";
-            cin>>interest[userNo];
+            cin>>money;
+            if(!digitValidator(money)){
+                cout<<"please enter valid option"<<endl;
+                anyKey();
+                goto wrongInterest;
+            }
+            interest[userNo] = myStoi(money);
             cout<<"Loan Approved.";
             debtData[userNo] += interest[userNo] * loanAmountData[userNo]/100 + loanAmountData[userNo];
             balanceData[userNo] += loanAmountData[userNo];
             
-            transactionHistory[userNo][transactionCount[userNo]] = to_string(cash) + " USD Loan Approved on date: " + currentDateTime();
+            transactionHistory[userNo][transactionCount[userNo]] = to_string(loanAmountData[userNo]) + " USD Loan Approved on date: " + currentDateTime();
             transactionCount[userNo]++;
         }
         else{
@@ -708,7 +948,7 @@ void adminUpdatePassword(string emailIN){
         return;
     }
     else{
-        cout<<"Enter new password: ";
+        cout<<endl<<"Enter new password: ";
         cin>>password;
         passwordData[getUserEmail(emailIN)] = password;
         cout<<"Password Updated Successfully"<<endl;
@@ -750,43 +990,47 @@ void adminFunction(){
         cout<<"press 0 to logOut"<<endl;
         cout<<"Your option: ";
         cin>>option;
-        if(option == '1'){
+        if(option == "1"){
             signUP();
         }
-        else if(option == '2'){
+        else if(option == "2"){
             adminAddSubtractMoney();
         }
-        else if(option == '3'){
+        else if(option == "3"){
             adminLoan();
         }
-        else if(option == '4'){
+        else if(option == "4"){
             adminViewUser();
         }
-        else if(option == '5'){
+        else if(option == "5"){
             cout<<"Enter the email of the user you want to delete"<<endl;
             cin>>email;
             if(!adminDelete(email)) cout<<"email doesnot exist.";
-            else cout<<"Deleted successfully.";
+            else{ 
+                cout<<"Deleted successfully.";
+                storeData();
+            }
         } 
-        else if(option == '6'){
+        else if(option == "6"){
             cout<<"Enter the email you want to update password: ";
             cin>>email;
             adminUpdatePassword(email);
             cout<<"Password Updated";
+            storeData();
         }
-        else if(option == '7'){
+        else if(option == "7"){
             int amount;
             cout<<"How much bonus you want to give them? : ";
             cin>>amount;
             adminGiveBonus(amount);
         }
-        else if(option == '8'){
+        else if(option == "8"){
             string email;
             cout<<"Enter email of the user you want to obtain the bankin history: ";
             cin>>email;
             adminViewHistory(email);
         }
-        else if(option == '0'){
+        else if(option == "0"){
             break;
         }
         else{
@@ -797,12 +1041,15 @@ void adminFunction(){
 }
 
 
-main(){ 
+
+int main(){ 
     system("cls");
+    loadHistory();
+    loadData();
     while(true){
         start:
         printInterface();
-        if(option=='1'){
+        if(option=="1"){
             system("cls");
             printHeader();
             if(signIN(userEmail,password)){
@@ -812,9 +1059,10 @@ main(){
                 cout<<"Invalid username or password";
                 pressAnyKey();
                 goto start;
-            } 
+            }
+            storeHistory();
         }
-        else if(option == '2'){
+        else if(option == "2"){
             adminLogin();
             if(userEmail == adminEmail && userPIN == adminPass){
                 adminFunction();
@@ -825,10 +1073,12 @@ main(){
                 goto start;
             }
         }
-        else if(option == '3'){
+        else if(option == "3"){
             signUP();
+            storeData();
+            storeHistory();
         }
-        else if(option == '0'){
+        else if(option == "0"){
             Footer();
             break;
         }

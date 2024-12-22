@@ -1,0 +1,6 @@
+Name: john
+Admission No: 123
+percentage: 76
+Name: jane
+Admission No: 231
+percentage: 92

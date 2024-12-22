@@ -1,0 +1,2 @@
+
+int gameScore = 0;

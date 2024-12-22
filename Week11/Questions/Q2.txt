@@ -1,0 +1,2 @@
+pointer can be reassigned in a way it points to a different memory address.
+References remain bound to initial value

@@ -1,0 +1,2 @@
+Pointers store memory addresses, can be reassigned and support null values.
+References cannot be reassigned, must contain a valid variable, but safer.
